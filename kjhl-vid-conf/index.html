@@ -1,0 +1,142 @@
+
+<!DOCTYPE html>
+<html>
+  <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1">
+      <link rel="icon" href="data:;base64,iVBORw0KGgo=">
+      <title>Welcome to KJHL-VID-CONF</title>
+      <link href="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.css" rel="stylesheet">
+      <script src="https://unpkg.com/material-components-web@latest/dist/material-components-web.min.js"></script>
+      <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+
+      <!-- update the version number as needed -->
+      <script defer src="/__/firebase/7.13.1/firebase-app.js"></script>
+      <!-- include only the Firebase features as you need -->
+      <script defer src="/__/firebase/7.13.1/firebase-firestore.js"></script>
+      <script defer src="/__/firebase/7.13.1/firebase-database.js"></script>
+      <!-- initialize the SDK after all desired features are loaded -->
+      <script defer src="/__/firebase/init.js"></script>
+
+      <script src="https://webrtc.github.io/adapter/adapter-latest.js"></script>
+
+      <link rel="stylesheet" type="text/css" href="main.css">
+      <link rel="stylesheet" href="bootstrap.min.css">
+  </head>
+  <body style="background-color: #121212;">
+    <div>
+        <nav class="navbar navbar-expand-sm bg-danger navbar-dark fixed-bottom m-0 p-0">
+            <div class="col-lg-12 m-0 p-0">
+                <div id="buttons" class="col-lg-12 row m-0 p-0">
+                    <button div class="col m-0 p-0 border pt-2" id="startBtn" style="cursor: pointer;">
+                        <div class="col-lg-12 m-0 p-0 row mx-auto my-auto">
+                            <div class="col-lg-2 m-0 p-0">
+                                <i class="material-icons text-danger mx-auto" aria-hidden="true">perm_camera_mic</i>
+                            </div>
+                            <div class="col-lg-10 m-0 p-0">
+                                <b class="text-danger">Start</b>
+                            </div>
+                        </div>
+                    </button>
+                    <button class="col m-0 p-0  border" disabled id="createBtn" style="cursor: pointer;">
+                        <div class="col-lg-12 m-0 p-0 row mx-auto my-auto">
+                            <div class="col-lg-2 m-0 p-0">
+                                <i class="material-icons text-danger mx-auto" aria-hidden="true">group_add</i>
+                            </div>
+                            <div class="col-lg-10 m-0 p-0">
+                                <b class="text-danger">Create</b>
+                            </div>
+                        </div>
+                    </button>
+                    <button class="col m-0 p-0  border" disabled id="joinBtn" style="cursor: pointer;">
+                        <div class="col-lg-12 m-0 p-0 row mx-auto my-auto">
+                            <div class="col-lg-2 m-0 p-0">
+                                <i class="material-icons text-danger mx-auto" aria-hidden="true">group</i>
+                            </div>
+                            <div class="col-lg-10 m-0 p-0">
+                                <b class="text-danger">Join</b>
+                            </div>
+                        </div>
+                    </button>
+                    <button class="col m-0 p-0 border" disabled id="hangupBtn" style="cursor: pointer;">
+                        <div class="col-lg-12 m-0 p-0 row mx-auto my-auto">
+                            <div class="col-lg-2 m-0 p-0">
+                                <i class="material-icons text-danger mx-auto" aria-hidden="true">close</i>
+                            </div>
+                            <div class="col-lg-10 m-0 p-0">
+                                <b class="text-danger">Hangup</b>
+                            </div>
+                        </div>
+                    </button>
+                    <button class="col m-0 p-0 border" disabled id="screenSharing" style="cursor: pointer;">
+                        <div class="col-lg-12 m-0 p-0 row mx-auto my-auto">
+                            <div class="col-lg-2 m-0 p-0">
+                                <i class="material-icons text-danger mx-auto" aria-hidden="true">perm_camera_mic</i>
+                            </div>
+                            <div class="col-lg-10 m-0 p-0">
+                                <b class="text-danger m-0 p-0">Screen</b>
+                            </div>
+                        </div>
+                    </button>
+                </div>
+            </div>
+        </nav>
+    </div>
+
+    <input type="text" value="" id="urlString" style="width: 1px; height: 1px">
+
+    <div class="container-fluid pb-5" style="background-color: #121212;">
+      <div class="col-lg-12 m-0 p-0 pt-1">
+          <div class="col-lg-12 m-0 p-0" style="background-color: #121212; padding: 5px; margin: 5px;">
+              <span id="currentRoom" style="color:gray" style="display: none"></span>
+              <button class="btn btn-info btn-sm" disabled id="urlCopy" style="display: none">
+                Copy URL!
+              </button>
+          </div>
+      </div>
+
+      <div id="videos" class="col-lg-12 row m-0 p-0 pb-5">
+
+          <div id="localVideoContainer" class="videoContainer col-lg-3 m-0 p-0">
+            <video id="localVideo" autoplay muted class="col-lg-12 m-0 p-0"></video>
+          </div>
+      
+          <!-- Remote videos get appended here -->
+          
+      </div>
+    </div>
+
+
+      <div class="mdc-dialog"
+      id="room-dialog"
+      role="alertdialog"
+      aria-modal="true"
+      aria-labelledby="my-dialog-title"
+      aria-describedby="my-dialog-content">
+      <div class="mdc-dialog__container">
+          <div class="mdc-dialog__surface">
+              <h2 class="mdc-dialog__title" id="my-dialog-title">Join room</h2>
+              <div class="mdc-dialog__content" id="my-dialog-content">
+                  Enter ID for room to join:
+                  <div class="mdc-text-field col">
+                      <input type="text" id="room-id" class="mdc-text-field__input">
+                  </div>
+              </div>
+              <footer class="mdc-dialog__actions">
+                  <button type="button" class="mdc-button mdc-dialog__button" data-mdc-dialog-action="no">
+                      <span class="mdc-button__label">Cancel</span>
+                  </button>
+                  <button id="confirmJoinBtn" type="button" class="mdc-button mdc-dialog__button"
+                          data-mdc-dialog-action="yes">
+                      <span class="mdc-button__label">Join</span>
+                  </button>
+              </footer>
+          </div>
+      </div>
+      <div class="mdc-dialog__scrim"></div>
+  </div>
+
+  <script src="app.js"></script>
+  <script src="popper.min.js"></script>
+</body>
+</html>
